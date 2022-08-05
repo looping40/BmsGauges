@@ -6,6 +6,9 @@ using F4SharedMem.Headers;
 
 public class Adi : MonoBehaviour
 {
+
+    //debug
+    [SerializeField] bool useSharedMemory = true;
     //Ball
     [SerializeField] float pitchAngle;
     [SerializeField] float rollAngle;
@@ -70,7 +73,7 @@ public class Adi : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (ReadSharedMem() != null)
+        if (useSharedMemory && (ReadSharedMem() != null))
         {
             _BallGameObject.transform.rotation = Quaternion.Euler(new Vector3(_lastFlightData.roll, -90, _lastFlightData.pitch));
             _bankGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, _lastFlightData.roll));
@@ -81,7 +84,7 @@ public class Adi : MonoBehaviour
             _LocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, _lastFlightData.AdiIlsVerPos, 0));
 
             var hsiBits = (HsiBits)_lastFlightData.hsiBits;
-            bool _showAuxFlag = (hsiBits & HsiBits.ADI_AUX) == HsiBits.ADI_AUX;
+            bool _showAuxFlag = ((hsiBits & HsiBits.ADI_AUX) == HsiBits.ADI_AUX) || ((hsiBits & HsiBits.ADI_OFF) == HsiBits.ADI_OFF);
             bool _showOffFlag = (hsiBits & HsiBits.ADI_OFF) == HsiBits.ADI_OFF;
             bool _showGsFlag = (hsiBits & HsiBits.ADI_GS) == HsiBits.ADI_GS;
             bool _showLocFlag = (hsiBits & HsiBits.ADI_LOC) == HsiBits.ADI_LOC;
@@ -121,6 +124,51 @@ public class Adi : MonoBehaviour
             {
                 _FlagAuxGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
             }
+        }else{
+            _BallGameObject.transform.rotation = Quaternion.Euler(new Vector3(rollAngle, -90, pitchAngle));
+            _bankGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, rollAngle));
+
+            _SlipGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+
+            _GsGameObject.transform.rotation = Quaternion.Euler(new Vector3(glideAngle, 0, 0));
+            _LocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, locAngle, 0));
+
+            if (showGsFlag)
+				{
+                _FlagGsGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -30));
+            }
+            else
+            {
+                _FlagGsGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            }
+
+			if (showLocFlag)
+            {
+                _FlagLocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 30));
+            }
+            else
+            {
+                _FlagLocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            }
+
+            if (showOffFlag)
+            {
+                _FlagOffGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 30));
+            }
+            else
+            {
+                _FlagOffGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            }
+
+            if (showOffFlag || showAuxFlag)
+            {
+                _FlagAuxGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -30));
+            }
+            else
+            {
+                _FlagAuxGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            }
+
         }
 
 
