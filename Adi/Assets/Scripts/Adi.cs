@@ -51,9 +51,18 @@ public class Adi : MonoBehaviour
     private Reader _sharedMemReader = new Reader();
     private FlightData _lastFlightData;
 
+    private const float GLIDESLOPE_SCALE = 5.0f;
+    private const float LOCALIZER_SCALE = 1.0f;
+    private const float RADIANS_PER_DEGREE = 0.0174532925f;
+
     private FlightData ReadSharedMem()
     {
         return _lastFlightData = _sharedMemReader.GetCurrentData();
+    }
+
+    private float DegToRadians(float angle)
+    {
+        return angle / RADIANS_PER_DEGREE;
     }
 
     // Start is called before the first frame update
@@ -75,13 +84,13 @@ public class Adi : MonoBehaviour
     {
         if (useSharedMemory && (ReadSharedMem() != null))
         {
-            _BallGameObject.transform.rotation = Quaternion.Euler(new Vector3(_lastFlightData.roll, -90, _lastFlightData.pitch));
-            _bankGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, _lastFlightData.roll));
+            _BallGameObject.transform.rotation = Quaternion.Euler(new Vector3(DegToRadians(_lastFlightData.roll), -90, DegToRadians(-_lastFlightData.pitch)));
+            _bankGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, DegToRadians(_lastFlightData.roll)));
 
             _SlipGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
 
-            _GsGameObject.transform.rotation = Quaternion.Euler(new Vector3(_lastFlightData.AdiIlsHorPos, 0, 0));
-            _LocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, _lastFlightData.AdiIlsVerPos, 0));
+            _GsGameObject.transform.rotation = Quaternion.Euler(new Vector3(GLIDESLOPE_SCALE * DegToRadians(-_lastFlightData.AdiIlsVerPos), 0, 0));
+            _LocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, LOCALIZER_SCALE * DegToRadians(-_lastFlightData.AdiIlsHorPos), 0));
 
             var hsiBits = (HsiBits)_lastFlightData.hsiBits;
             bool _showAuxFlag = ((hsiBits & HsiBits.ADI_AUX) == HsiBits.ADI_AUX) || ((hsiBits & HsiBits.ADI_OFF) == HsiBits.ADI_OFF);
