@@ -13,9 +13,6 @@ public class Adi : MonoBehaviour
     [SerializeField] float pitchAngle;
     [SerializeField] float rollAngle;
 
-    //Bank
-    [SerializeField] float bankAngle;
-
     //Slip
     [SerializeField] float slip;
 
