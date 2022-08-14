@@ -4,6 +4,8 @@ using UnityEngine;
 using F4SharedMem;
 using F4SharedMem.Headers;
 using F4Utils.SimSupport;
+using log4net.Core;
+using UnityEditor;
 
 public class Adi : MonoBehaviour
 {
@@ -62,6 +64,16 @@ public class Adi : MonoBehaviour
     private const float RADIANS_PER_DEGREE = 0.0174532925f;
     private const float DEGREES_PER_RADIAN = 57.2957795f;
 
+    private Camera _cam;
+    private float _camera_x_scale = 1.0f;
+    private float _mouse_prev_scroll = 0;
+    private Matrix4x4 defaultMatrix = new(
+                                        new Vector4(4.166667f, 0.0f, 0.0f, 0.0f),
+                                        new Vector4(0.0f, 4.166667f, 0.0f, 0.0f),
+                                        new Vector4(0.0f, 0.0f, -1.0006f, -1.0f),
+                                        new Vector4(0.0f, 0.0f, -0.60018f, 0.0f)
+                                    );
+
     private FlightData ReadSharedMem()
     {
         return _lastFlightData = _sharedMemReader.GetCurrentData();
@@ -85,11 +97,18 @@ public class Adi : MonoBehaviour
         _FlagLocGameObject = GameObject.Find("FlagLoc");
         _FlagOffGameObject = GameObject.Find("FlagOff");
         _FlagAuxGameObject = GameObject.Find("FlagAux");
-}
 
-    // Update is called once per frame
+        _cam = Camera.main;
+        
+        LoadProjectionMatrix();
+    }
+
+
     void Update()
     {
+        UpdateAspectRation();
+        
+
         if (useDebug)
         {
             _BallGameObject.transform.rotation = Quaternion.Euler(new Vector3(rollAngle, -90, pitchAngle));
@@ -145,7 +164,7 @@ public class Adi : MonoBehaviour
                 _BallGameObject.transform.rotation = Quaternion.Euler(new Vector3(-DegToRadians(_lastFlightData.roll), -90, DegToRadians(-_lastFlightData.pitch)));
                 _bankGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -DegToRadians(_lastFlightData.roll)));
 
-                _SlipGameObject.transform.position = new Vector3(_lastFlightData.beta, _SlipGameObject.transform.position.y, _SlipGameObject.transform.position.z);
+                _SlipGameObject.transform.position = new Vector3(-_lastFlightData.beta, _SlipGameObject.transform.position.y, _SlipGameObject.transform.position.z);
 
                 _GsGameObject.transform.rotation = Quaternion.Euler(new Vector3(GLIDESLOPE_SCALE * DegToRadians(-_lastFlightData.AdiIlsVerPos), 0, 0));
                 _LocGameObject.transform.rotation = Quaternion.Euler(new Vector3(0, LOCALIZER_SCALE * DegToRadians(-_lastFlightData.AdiIlsHorPos), 0));
@@ -197,5 +216,50 @@ public class Adi : MonoBehaviour
             }
         }
 
+    }
+
+
+    //change window aspect ration
+    private void UpdateAspectRation()
+    {
+        var curScroll = Input.GetAxis("Mouse ScrollWheel");
+        if ((_mouse_prev_scroll - curScroll != 0) & Input.GetKey(KeyCode.LeftShift))
+        {
+            _camera_x_scale += (_mouse_prev_scroll - curScroll) / 10;
+            _mouse_prev_scroll = curScroll;
+        }
+        _cam.projectionMatrix *= Matrix4x4.Scale(new Vector3(_camera_x_scale, 1, 1));
+    }
+
+    private void LoadProjectionMatrix()
+    {
+        for (int i = 0; i< 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                defaultMatrix[i,j] = PlayerPrefs.GetFloat("M"+i+"_"+j, defaultMatrix[i,j]);
+                
+            }
+        }
+
+        _cam.projectionMatrix = defaultMatrix;
+    }
+
+    private void SaveProjectionMatrix()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                PlayerPrefs.SetFloat("M" + i + "_" + j, _cam.projectionMatrix[i, j]);
+
+            }
+        }
+    }
+
+
+    private void OnApplicationQuit()
+    {
+        SaveProjectionMatrix();
     }
 }
