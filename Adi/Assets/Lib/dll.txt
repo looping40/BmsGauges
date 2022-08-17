@@ -1,0 +1,4 @@
+Required Dlls from https://github.com/lightningviper/lightningstools:
+
+F4SharedMem.dll
+
