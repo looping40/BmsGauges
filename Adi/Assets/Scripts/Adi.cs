@@ -15,6 +15,8 @@ public class Adi : MonoBehaviour
     [SerializeField] float pitchAngle;
     [SerializeField] float rollAngle;
 
+    [SerializeField] float heading;
+
     //Slip
     [SerializeField] float slip;
 
@@ -31,7 +33,7 @@ public class Adi : MonoBehaviour
     [SerializeField] bool showOffFlag;
     [SerializeField] bool showAuxFlag;
 
-    [SerializeField] float heading;
+    [SerializeField] uint instrLight;
 
     //Own aricraft
     private GameObject _aircarftGameObject;
@@ -59,6 +61,16 @@ public class Adi : MonoBehaviour
     private GameObject _FlagLocGameObject;
     private GameObject _FlagOffGameObject;
     private GameObject _FlagAuxGameObject;
+
+    Light mySunLight;
+    Material _BallMaterial;
+    Material _LocMaterial;
+    Material _GsMaterial;
+
+    Material _FlagLocMaterial;
+    Material _FlagGsMaterial;
+    Material _FlagAuxMaterial;
+    Material _FlagOffMaterial;
 
     private readonly Reader _sharedMemReader = new();
     private FlightData _lastFlightData;
@@ -107,17 +119,28 @@ public class Adi : MonoBehaviour
         _aircarftGameObject = GameObject.Find("Aircraft");
         _sunGameObject = GameObject.Find("Sun");
         _sunLightGameObject = GameObject.Find("LightSun");
+        mySunLight = _sunLightGameObject.GetComponent<Light>();
+
+        _BallMaterial = _BallGameObject.GetComponent<Renderer>().material;
+
+        _LocMaterial = _LocGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _GsMaterial = _GsGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+
+        _FlagLocMaterial = _FlagGsGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material; 
+        _FlagGsMaterial = _FlagLocGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _FlagAuxMaterial = _FlagOffGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _FlagOffMaterial = _FlagAuxGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
 
         _cam = Camera.main;
         LoadProjectionMatrix();
-
+        
         SpaObject.spa.year = 2022;
         SpaObject.spa.month = 8;
         SpaObject.spa.day = 1;
         SpaObject.spa.timezone = +9;
         SpaObject.spa.function = SpaFunction.ZA;
 
-
+        
     }
 
 
@@ -129,10 +152,13 @@ public class Adi : MonoBehaviour
 
         //Update Adi
         UpdateAdi();
+
+        //Update day/light
+        UpdateLight();
         
     }
 
-
+    
     private void OnApplicationQuit()
     {
         SaveProjectionMatrix();
@@ -325,5 +351,72 @@ public class Adi : MonoBehaviour
         }
 
         _sunLightGameObject.transform.LookAt(_BallGameObject.transform);
+    }
+
+    private void UpdateLight()
+    {
+        if (useDebug)
+        {
+            Light myLight = _sunLightGameObject.GetComponent<Light>();
+            if (instrLight != 0)
+            {
+                myLight.intensity = 0;
+                _BallMaterial.EnableKeyword("_EMISSION");
+
+                _LocMaterial.EnableKeyword("_EMISSION");
+                _GsMaterial.EnableKeyword("_EMISSION");
+
+                _FlagLocMaterial.EnableKeyword("_EMISSION");
+                _FlagGsMaterial.EnableKeyword("_EMISSION");
+                _FlagAuxMaterial.EnableKeyword("_EMISSION");
+                _FlagOffMaterial.EnableKeyword("_EMISSION");
+            }
+            else
+            {
+                myLight.intensity = 1;
+                _BallMaterial.DisableKeyword("_EMISSION");
+
+                _LocMaterial.DisableKeyword("_EMISSION");
+                _GsMaterial.DisableKeyword("_EMISSION");
+
+                _FlagLocMaterial.DisableKeyword("_EMISSION");
+                _FlagGsMaterial.DisableKeyword("_EMISSION");
+                _FlagAuxMaterial.DisableKeyword("_EMISSION");
+                _FlagOffMaterial.DisableKeyword("_EMISSION");
+            }
+        }
+        else
+        {
+            if (ReadSharedMem() != null)
+            {
+                Light mySunLight = _sunLightGameObject.GetComponent<Light>();
+                if (_lastFlightData.instrLight != 0)
+                {
+                    mySunLight.intensity = 0;
+                    _BallMaterial.EnableKeyword("_EMISSION");
+
+                    _LocMaterial.EnableKeyword("_EMISSION");
+                    _GsMaterial.EnableKeyword("_EMISSION");
+
+                    _FlagLocMaterial.EnableKeyword("_EMISSION");
+                    _FlagGsMaterial.EnableKeyword("_EMISSION");
+                    _FlagAuxMaterial.EnableKeyword("_EMISSION");
+                    _FlagOffMaterial.EnableKeyword("_EMISSION");
+                }
+                else
+                {
+                    mySunLight.intensity = 1;
+                    _BallMaterial.DisableKeyword("_EMISSION");
+
+                    _LocMaterial.DisableKeyword("_EMISSION");
+                    _GsMaterial.DisableKeyword("_EMISSION");
+
+                    _FlagLocMaterial.DisableKeyword("_EMISSION");
+                    _FlagGsMaterial.DisableKeyword("_EMISSION");
+                    _FlagAuxMaterial.DisableKeyword("_EMISSION");
+                    _FlagOffMaterial.DisableKeyword("_EMISSION");
+                }
+            }
+        }
     }
 }
