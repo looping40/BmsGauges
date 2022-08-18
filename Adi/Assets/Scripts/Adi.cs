@@ -72,6 +72,8 @@ public class Adi : MonoBehaviour
     Material _FlagAuxMaterial;
     Material _FlagOffMaterial;
 
+    Material _MarkingMaterial;
+
     private readonly Reader _sharedMemReader = new();
     private FlightData _lastFlightData;
 
@@ -131,13 +133,7 @@ public class Adi : MonoBehaviour
         _FlagAuxMaterial = _FlagAuxGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
         _FlagOffMaterial = _FlagOffGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
 
-        /*_BallMaterial.SetColor("_EMISSION", new Color(0.3f, 0.3f, 0.3f, 1.0f));
-        _LocMaterial.SetColor("_EMISSION", new Color(0.23f, 0.23f, 0.0f, 1.0f));
-        _GsMaterial.SetColor("_EMISSION", new Color(0.23f, 0.23f, 0.0f, 1.0f));
-        _FlagGsMaterial.SetColor("_EMISSION", new Color(0.56f, 0.0f, 0.0f, 1.0f));
-        _FlagLocMaterial.SetColor("_EMISSION", new Color(0.56f, 0.0f, 0.0f, 1.0f));
-        _FlagAuxMaterial.SetColor("_EMISSION", new Color(0.23f, 0.23f, 0.0f, 1.0f));
-        _FlagOffMaterial.SetColor("_EMISSION", new Color(0.56f, 0.0f, 0.0f, 1.0f));*/
+        _MarkingMaterial = GameObject.Find("ADI_soft - Marquage").GetComponent<Renderer>().material;
 
         _cam = Camera.main;
         LoadProjectionMatrix();
@@ -354,11 +350,45 @@ public class Adi : MonoBehaviour
 
                 SpaObject.Spa_calculate();
 
-                _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3(-(float)SpaObject.spa.zenith, 180.0f + (float)SpaObject.spa.azimuth, 0));
+                _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3(-(float)SpaObject.spa.zenith, (float)SpaObject.spa.azimuth, 0));
             }
         }
 
         _sunLightGameObject.transform.LookAt(_BallGameObject.transform);
+    }
+
+    private void EnableLight()
+    {
+        mySunLight.intensity = 0;
+
+        _BallMaterial.EnableKeyword("_EMISSION");
+
+        _LocMaterial.EnableKeyword("_EMISSION");
+        _GsMaterial.EnableKeyword("_EMISSION");
+
+        _FlagLocMaterial.EnableKeyword("_EMISSION");
+        _FlagGsMaterial.EnableKeyword("_EMISSION");
+        _FlagAuxMaterial.EnableKeyword("_EMISSION");
+        _FlagOffMaterial.EnableKeyword("_EMISSION");
+
+        _MarkingMaterial.EnableKeyword("_EMISSION");
+    }
+
+    private void DisableLight()
+    {
+        mySunLight.intensity = 1;
+
+        _BallMaterial.DisableKeyword("_EMISSION");
+
+        _LocMaterial.DisableKeyword("_EMISSION");
+        _GsMaterial.DisableKeyword("_EMISSION");
+
+        _FlagLocMaterial.DisableKeyword("_EMISSION");
+        _FlagGsMaterial.DisableKeyword("_EMISSION");
+        _FlagAuxMaterial.DisableKeyword("_EMISSION");
+        _FlagOffMaterial.DisableKeyword("_EMISSION");
+
+        _MarkingMaterial.DisableKeyword("_EMISSION");
     }
 
     private void UpdateLight()
@@ -367,31 +397,11 @@ public class Adi : MonoBehaviour
         {
             if (instrLight != 0)
             {
-                mySunLight.intensity = 0;
-
-                _BallMaterial.EnableKeyword("_EMISSION");
-
-                _LocMaterial.EnableKeyword("_EMISSION");
-                _GsMaterial.EnableKeyword("_EMISSION");
-
-                _FlagLocMaterial.EnableKeyword("_EMISSION");
-                _FlagGsMaterial.EnableKeyword("_EMISSION");
-                _FlagAuxMaterial.EnableKeyword("_EMISSION");
-                _FlagOffMaterial.EnableKeyword("_EMISSION");
+                EnableLight();
             }
             else
             {
-                mySunLight.intensity = 1;
-
-                _BallMaterial.DisableKeyword("_EMISSION");
-
-                _LocMaterial.DisableKeyword("_EMISSION");
-                _GsMaterial.DisableKeyword("_EMISSION");
-
-                _FlagLocMaterial.DisableKeyword("_EMISSION");
-                _FlagGsMaterial.DisableKeyword("_EMISSION");
-                _FlagAuxMaterial.DisableKeyword("_EMISSION");
-                _FlagOffMaterial.DisableKeyword("_EMISSION");
+                DisableLight();
             }
         }
         else
@@ -400,31 +410,11 @@ public class Adi : MonoBehaviour
             {
                 if (_lastFlightData.instrLight != 0)
                 {
-                    mySunLight.intensity = 0;
-
-                    _BallMaterial.EnableKeyword("_EMISSION");
-
-                    _LocMaterial.EnableKeyword("_EMISSION");
-                    _GsMaterial.EnableKeyword("_EMISSION");
-
-                    _FlagLocMaterial.EnableKeyword("_EMISSION");
-                    _FlagGsMaterial.EnableKeyword("_EMISSION");
-                    _FlagAuxMaterial.EnableKeyword("_EMISSION");
-                    _FlagOffMaterial.EnableKeyword("_EMISSION");
+                    EnableLight();
                 }
                 else
                 {
-                    mySunLight.intensity = 1;
-
-                    _BallMaterial.DisableKeyword("_EMISSION");
-
-                    _LocMaterial.DisableKeyword("_EMISSION");
-                    _GsMaterial.DisableKeyword("_EMISSION");
-
-                    _FlagLocMaterial.DisableKeyword("_EMISSION");
-                    _FlagGsMaterial.DisableKeyword("_EMISSION");
-                    _FlagAuxMaterial.DisableKeyword("_EMISSION");
-                    _FlagOffMaterial.DisableKeyword("_EMISSION");
+                    DisableLight();
                 }
             }
         }
