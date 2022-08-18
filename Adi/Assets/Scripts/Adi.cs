@@ -122,14 +122,22 @@ public class Adi : MonoBehaviour
         mySunLight = _sunLightGameObject.GetComponent<Light>();
 
         _BallMaterial = _BallGameObject.GetComponent<Renderer>().material;
-
+        
         _LocMaterial = _LocGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
         _GsMaterial = _GsGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
 
-        _FlagLocMaterial = _FlagGsGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material; 
-        _FlagGsMaterial = _FlagLocGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
-        _FlagAuxMaterial = _FlagOffGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
-        _FlagOffMaterial = _FlagAuxGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _FlagGsMaterial = _FlagGsGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _FlagLocMaterial = _FlagLocGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _FlagAuxMaterial = _FlagAuxGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+        _FlagOffMaterial = _FlagOffGameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Renderer>().material;
+
+        /*_BallMaterial.SetColor("_EMISSION", new Color(0.3f, 0.3f, 0.3f, 1.0f));
+        _LocMaterial.SetColor("_EMISSION", new Color(0.23f, 0.23f, 0.0f, 1.0f));
+        _GsMaterial.SetColor("_EMISSION", new Color(0.23f, 0.23f, 0.0f, 1.0f));
+        _FlagGsMaterial.SetColor("_EMISSION", new Color(0.56f, 0.0f, 0.0f, 1.0f));
+        _FlagLocMaterial.SetColor("_EMISSION", new Color(0.56f, 0.0f, 0.0f, 1.0f));
+        _FlagAuxMaterial.SetColor("_EMISSION", new Color(0.23f, 0.23f, 0.0f, 1.0f));
+        _FlagOffMaterial.SetColor("_EMISSION", new Color(0.56f, 0.0f, 0.0f, 1.0f));*/
 
         _cam = Camera.main;
         LoadProjectionMatrix();
@@ -346,7 +354,7 @@ public class Adi : MonoBehaviour
 
                 SpaObject.Spa_calculate();
 
-                _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3(-(float)SpaObject.spa.zenith, (float)SpaObject.spa.azimuth, 0));
+                _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3(-(float)SpaObject.spa.zenith, 180.0f + (float)SpaObject.spa.azimuth, 0));
             }
         }
 
@@ -357,10 +365,10 @@ public class Adi : MonoBehaviour
     {
         if (useDebug)
         {
-            Light myLight = _sunLightGameObject.GetComponent<Light>();
             if (instrLight != 0)
             {
-                myLight.intensity = 0;
+                mySunLight.intensity = 0;
+
                 _BallMaterial.EnableKeyword("_EMISSION");
 
                 _LocMaterial.EnableKeyword("_EMISSION");
@@ -373,7 +381,8 @@ public class Adi : MonoBehaviour
             }
             else
             {
-                myLight.intensity = 1;
+                mySunLight.intensity = 1;
+
                 _BallMaterial.DisableKeyword("_EMISSION");
 
                 _LocMaterial.DisableKeyword("_EMISSION");
@@ -389,10 +398,10 @@ public class Adi : MonoBehaviour
         {
             if (ReadSharedMem() != null)
             {
-                Light mySunLight = _sunLightGameObject.GetComponent<Light>();
                 if (_lastFlightData.instrLight != 0)
                 {
                     mySunLight.intensity = 0;
+
                     _BallMaterial.EnableKeyword("_EMISSION");
 
                     _LocMaterial.EnableKeyword("_EMISSION");
@@ -406,6 +415,7 @@ public class Adi : MonoBehaviour
                 else
                 {
                     mySunLight.intensity = 1;
+
                     _BallMaterial.DisableKeyword("_EMISSION");
 
                     _LocMaterial.DisableKeyword("_EMISSION");
