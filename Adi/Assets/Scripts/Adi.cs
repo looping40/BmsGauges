@@ -3,7 +3,7 @@ using F4SharedMem;
 using F4SharedMem.Headers;
 using SpaNs;
 using System;
-using UnityEngine.UIElements.Experimental;
+
 
 public class Adi : MonoBehaviour
 {
@@ -35,6 +35,10 @@ public class Adi : MonoBehaviour
 
     [SerializeField] uint instrLight;
 
+    //Sun
+    [SerializeField] float sunZenith = 30;
+    [SerializeField] float sunAzimuth = 175;
+
     //Own aricraft
     private GameObject _aircarftGameObject;
     private GameObject _sunGameObject;
@@ -62,6 +66,8 @@ public class Adi : MonoBehaviour
     private GameObject _FlagOffGameObject;
     private GameObject _FlagAuxGameObject;
 
+    //private GameObject myUiTextObject;
+
     Light mySunLight;
     Material _BallMaterial;
     Material _LocMaterial;
@@ -71,8 +77,8 @@ public class Adi : MonoBehaviour
     Material _FlagGsMaterial;
     Material _FlagAuxMaterial;
     Material _FlagOffMaterial;
-
-    Material _MarkingMaterial;
+    
+    private Material _MarkingMaterial;
 
     private readonly Reader _sharedMemReader = new();
     private FlightData _lastFlightData;
@@ -90,8 +96,6 @@ public class Adi : MonoBehaviour
                                         new Vector4(0.0f, 0.0f, -1.0006f, -1.0f),
                                         new Vector4(0.0f, 0.0f, -0.60018f, 0.0f)
                                     );
-    private Quaternion _DefaultSunRotation = Quaternion.Euler(new Vector3(-122.764f, 23.26199f, 0));
-    private Quaternion _DefaultSunLightRotation = Quaternion.Euler(new Vector3(4.206f, 182.155f, - 176.991f));
 
     private readonly Spa SpaObject = new();
 
@@ -143,8 +147,6 @@ public class Adi : MonoBehaviour
         SpaObject.spa.day = 1;
         SpaObject.spa.timezone = +9;
         SpaObject.spa.function = SpaFunction.ZA;
-
-        
     }
 
 
@@ -158,8 +160,7 @@ public class Adi : MonoBehaviour
         UpdateAdi();
 
         //Update day/light
-        UpdateLight();
-        
+        UpdateLight();        
     }
 
     
@@ -327,8 +328,7 @@ public class Adi : MonoBehaviour
     {
         if (useDebug)
         {
-            _sunGameObject.transform.rotation = _DefaultSunRotation;
-            _sunLightGameObject.transform.rotation = _DefaultSunLightRotation;
+            _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3(sunZenith, sunAzimuth, 0));
         }
         else
         {
@@ -341,16 +341,17 @@ public class Adi : MonoBehaviour
 
                 SpaObject.spa.longitude = _lastFlightData.longitude;
                 SpaObject.spa.latitude = _lastFlightData.latitude;
+                SpaObject.spa.elevation = Math.Abs(_lastFlightData.aauz);
 
                 SpaObject.spa.year = 2022;
                 SpaObject.spa.month = 8;
                 SpaObject.spa.day = 1;
-                SpaObject.spa.timezone = +9;
+                SpaObject.spa.timezone = 0;
                 SpaObject.spa.function = SpaFunction.ZA;
 
                 SpaObject.Spa_calculate();
 
-                _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3(-(float)SpaObject.spa.zenith, (float)SpaObject.spa.azimuth, 0));
+               _sunGameObject.transform.rotation = Quaternion.Euler(new Vector3((float)SpaObject.spa.zenith, (float)SpaObject.spa.azimuth, 0));
             }
         }
 
