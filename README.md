@@ -1,2 +1,2 @@
 # BmsGauges
-Using Lightningstools to access Bms shared meomry : https://github.com/lightningviper/lightningstools
+Using Lightnings tools to access Bms shared memory : https://github.com/lightningviper/lightningstools
