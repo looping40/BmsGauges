@@ -66,8 +66,6 @@ public class Adi : MonoBehaviour
     private GameObject _FlagOffGameObject;
     private GameObject _FlagAuxGameObject;
 
-    //private GameObject myUiTextObject;
-
     Light mySunLight;
     Material _BallMaterial;
     Material _LocMaterial;
@@ -149,7 +147,6 @@ public class Adi : MonoBehaviour
         SpaObject.spa.function = SpaFunction.ZA;
     }
 
-
     void Update()
     {
         UpdateAspectRation();
@@ -162,7 +159,6 @@ public class Adi : MonoBehaviour
         //Update day/light
         UpdateLight();        
     }
-
     
     private void OnApplicationQuit()
     {
@@ -206,7 +202,6 @@ public class Adi : MonoBehaviour
             }
         }
     }
-
 
     private void UpdateAdi()
     {
@@ -393,7 +388,7 @@ public class Adi : MonoBehaviour
     }
 
     private void UpdateLight()
-    {
+        {
         if (useDebug)
         {
             if (instrLight != 0)
